@@ -21,8 +21,6 @@ package com.uday.automate.util
 					identifier = ( "/" + component.automationName + ":" + "automationName" + identifier);
 				} else if(component.hasOwnProperty("label") && component.label) {
 					identifier = ( "/" + component.label + ":" + "label" + identifier);
-				} else if(component.hasOwnProperty("name") && component.name) {
-					identifier = ( "/" + component.name + ":" + "name" + identifier);
 				} else {
 					identifier = ( "/" + component.className + ":" + "className" + identifier);
 				}
