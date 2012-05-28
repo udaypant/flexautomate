@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" version="3">
+  <includeClasses>
+    <classEntry path="com.uday.automate.FlexAutomate"/>
+    <classEntry path="com.uday.automate.record.Recorder"/>
+    <classEntry path="com.uday.automate.util.IdentifierUtil"/>
+    <classEntry path="com.uday.automate.util.AppTreeParser"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

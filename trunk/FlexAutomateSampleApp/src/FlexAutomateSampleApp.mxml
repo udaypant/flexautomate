@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+				minWidth="955" minHeight="600" xmlns:local="*" 
+				creationComplete="application1_creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import flash.utils.describeType;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+			}
+
+
+			protected function someBtn_clickHandler(event:MouseEvent):void
+			{
+				var popup:SamplePopup = new SamplePopup();
+				PopUpManager.addPopUp(popup,this);
+				PopUpManager.centerPopUp(popup);
+			}
+
+		]]>
+	</mx:Script>
+	<mx:TextInput id="sampleTxtInput" width="100"/>
+	<local:CustomButton id="someBtn" label="Test" click="someBtn_clickHandler(event)"/>
+</mx:Application>
