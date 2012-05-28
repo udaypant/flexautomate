@@ -13,18 +13,22 @@
 
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
+				var type:XML = describeType(CustomButton);
+				trace();
 			}
 
 
 			protected function someBtn_clickHandler(event:MouseEvent):void
 			{
-				var popup:SamplePopup = new SamplePopup();
+				/* var popup:SamplePopup = new SamplePopup();
 				PopUpManager.addPopUp(popup,this);
-				PopUpManager.centerPopUp(popup);
+				PopUpManager.centerPopUp(popup); */
+				dynamicComp.addChild(new TextInput());
 			}
 
 		]]>
 	</mx:Script>
 	<mx:TextInput id="sampleTxtInput" width="100"/>
 	<local:CustomButton id="someBtn" label="Test" click="someBtn_clickHandler(event)"/>
+	<mx:HBox id="dynamicComp"/>
 </mx:Application>
