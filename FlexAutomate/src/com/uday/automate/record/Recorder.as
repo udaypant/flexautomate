@@ -4,6 +4,8 @@ package com.uday.automate.record
 	import com.uday.automate.util.AppTreeParser;
 	import com.uday.automate.util.IdentifierUtil;
 	
+	import flash.events.EventDispatcher;
+	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
@@ -28,7 +30,9 @@ package com.uday.automate.record
 			AppTreeParser.parseUiTree(sysmanager,registerComponent);
 			var popupManagerImpl:mx.managers.PopUpManagerImpl = mx.core.Singleton.getInstance("mx.managers::IPopUpManager") as mx.managers.PopUpManagerImpl;
 			
-			popupManagerImpl.addEventListener("addedPopUp",popupListener);
+			if(popupManagerImpl is EventDispatcher) {
+				popupManagerImpl.addEventListener("addedPopUp",popupListener);
+			}
 		}
 		
 		private function popupListener(event:DynamicEvent):void {
@@ -98,6 +102,10 @@ package com.uday.automate.record
 			} else if (isTypeOrSubType(component, "Button")) {
 				component.addEventListener(MouseEvent.CLICK, clickHandler);
 			}
+			
+			//Some handlers to be attached to all controls
+			component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler);
+			component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 		}
 		
 		private function registerContainer(component:Object):void {
@@ -116,12 +124,14 @@ package com.uday.automate.record
 		
 		private function clickHandler(event:MouseEvent):void {
 			sendToSelenium("click",IdentifierUtil.generateIdentifier(event.target));
-		}		
+		}
 		
-		private function handleKeyDown(event:KeyboardEvent):void {
-			if((event.keyCode == Keyboard.BACKSPACE) || 
-				(event.keyCode == Keyboard.DELETE) || 
-				(event.keyCode == Keyboard.TAB) ||
+		private function focusInHandler(event:FocusEvent):void {
+			sendToSelenium("focusIn",IdentifierUtil.generateIdentifier(event.target));
+		}
+		
+		private function keyDownHandler(event:KeyboardEvent):void {
+			if( (event.keyCode == Keyboard.TAB) ||
 				(event.keyCode == Keyboard.ENTER)) {
 				sendToSelenium(event.type,IdentifierUtil.generateIdentifier(event.target), event.keyCode.toString());
 			}
