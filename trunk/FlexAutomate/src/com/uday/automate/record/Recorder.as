@@ -118,12 +118,12 @@ package com.uday.automate.record
 		
 		private function valueCommitHandler(event:FlexEvent):void {
 			if(event.target is TextInput) {
-				sendToSelenium("type",IdentifierUtil.generateIdentifier(event.target), event.target.text);
+				sendToSelenium("flexType",IdentifierUtil.generateIdentifier(event.target), event.target.text);
 			} 
 		}
 		
 		private function clickHandler(event:MouseEvent):void {
-			sendToSelenium("click",IdentifierUtil.generateIdentifier(event.target));
+			sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.target));
 		}
 		
 		private function focusInHandler(event:FocusEvent):void {
