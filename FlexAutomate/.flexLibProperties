@@ -5,6 +5,7 @@
     <classEntry path="com.uday.automate.record.Recorder"/>
     <classEntry path="com.uday.automate.util.IdentifierUtil"/>
     <classEntry path="com.uday.automate.util.AppTreeParser"/>
+    <classEntry path="com.uday.automate.pyayback.PlayBack"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
