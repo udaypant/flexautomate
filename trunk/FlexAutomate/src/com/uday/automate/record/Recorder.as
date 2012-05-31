@@ -16,6 +16,7 @@ package com.uday.automate.record
 	
 	import mx.controls.Button;
 	import mx.controls.TextInput;
+	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
 	import mx.core.UIComponent;
 	import mx.events.ChildExistenceChangedEvent;
@@ -25,19 +26,26 @@ package com.uday.automate.record
 	
 	public class Recorder
 	{
-		public function Recorder(sysmanager:SystemManager)
-		{			
-			AppTreeParser.parseUiTree(sysmanager,registerComponent);
+		private var sysManager:SystemManager;
+		
+		public function Recorder(sysMan:SystemManager)
+		{	
+			sysManager = sysMan;
+		}
+		
+		public function processSysManager():void {
+			sendToSelenium("flexWaitForElement", IdentifierUtil.generateIdentifier(FlexGlobals.topLevelApplication));
+			AppTreeParser.parseUiTree(sysManager,registerComponent,null);
 			var popupManagerImpl:mx.managers.PopUpManagerImpl = mx.core.Singleton.getInstance("mx.managers::IPopUpManager") as mx.managers.PopUpManagerImpl;
 			
 			if(popupManagerImpl is EventDispatcher) {
-				popupManagerImpl.addEventListener("addedPopUp",popupListener);
+				popupManagerImpl.addEventListener("addedPopUp",popupListener, false, 0, true);
 			}
 		}
 		
 		private function popupListener(event:DynamicEvent):void {
 			if(event.hasOwnProperty("window") && event.window) {
-				AppTreeParser.parseUiTree(event.window,registerComponent);
+				AppTreeParser.parseUiTree(event.window,registerComponent,null);
 			}
 		}
 		
@@ -57,7 +65,7 @@ package com.uday.automate.record
 			ExternalInterface.call(js, command, target, value);
 		}
 		
-		public function registerComponent(component:Object):Boolean {
+		public function registerComponent(component:Object,param:Object):Boolean {
 			
 			var isContainer:Boolean = isContainer(component);
 			
@@ -69,7 +77,7 @@ package com.uday.automate.record
 			//var isContainer:Boolean = (type.extendsClass.(@type.toString().search("mx.controls") > -1) as XMLList).length;
 			trace("Registering " + component.toString() + " with id " + (component.hasOwnProperty("id")?component.id:"NA") + " and class " + getQualifiedClassName(component));
 			
-			return isContainer;
+			return false;
 		}
 		
 		private function isContainer(component:Object):Boolean {
@@ -98,22 +106,22 @@ package com.uday.automate.record
 		
 		private function registerControls(component:Object):void {
 			if(isTypeOrSubType(component, "TextInput")) {
-				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandler);
+				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandler, false, 0, true);
 			} else if (isTypeOrSubType(component, "Button")) {
-				component.addEventListener(MouseEvent.CLICK, clickHandler);
+				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
 			}
 			
 			//Some handlers to be attached to all controls
-			component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler);
-			component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+			component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler, false, 0, true);
+			component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, 0, true);
 		}
 		
 		private function registerContainer(component:Object):void {
-			component.addEventListener(ChildExistenceChangedEvent.CHILD_ADD, childAddedToContainer);
+			component.addEventListener(ChildExistenceChangedEvent.CHILD_ADD, childAddedToContainer, false, 0, true);
 		}
 		
 		private function childAddedToContainer(event:ChildExistenceChangedEvent):void {
-			AppTreeParser.parseUiTree(event.relatedObject as IChildList, registerComponent);
+			AppTreeParser.parseUiTree(event.relatedObject as IChildList, registerComponent,null);
 		}
 		
 		private function valueCommitHandler(event:FlexEvent):void {
@@ -127,7 +135,7 @@ package com.uday.automate.record
 		}
 		
 		private function focusInHandler(event:FocusEvent):void {
-			sendToSelenium("focusIn",IdentifierUtil.generateIdentifier(event.target));
+			sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.target));
 		}
 		
 		private function keyDownHandler(event:KeyboardEvent):void {

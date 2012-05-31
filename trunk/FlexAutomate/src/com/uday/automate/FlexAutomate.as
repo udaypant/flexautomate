@@ -22,12 +22,13 @@ package com.uday.automate
 		public static function init(sysm:SystemManager):void {
 			FlexAutomate.sysManager = sysm as SystemManager;
 			instance = new FlexAutomate();			
+			recorder = new Recorder(sysm);
+			playback = new PlayBack(sysm);
 		}
 		
 		private function appCreationComplete(event:FlexEvent):void {
 			var app:Object = FlexAutomate.sysManager.getChildAt(0);
-			recorder = new Recorder(FlexAutomate.sysManager);
-			playback = new PlayBack(FlexAutomate.sysManager);
+			recorder.processSysManager();
 		}
 	}
 }

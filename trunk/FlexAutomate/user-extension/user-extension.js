@@ -4,14 +4,12 @@ Selenium.prototype.getFlexObject = function() {
 			.getDocument())) ? this.browserbot.locateElementByXPath('//embed',
 			this.browserbot.getDocument()) : this.browserbot
 			.locateElementByXPath('//object', this.browserbot.getDocument());
-			alert("Calling 3");
 	return obj.id;
 };
 
 Selenium.prototype.flashObjectLocator = null;
 
-Selenium.prototype.callFlexMethod = function(method, id, args) {
-	alert("Calling 2");
+Selenium.prototype.callFlexMethod = function(method, command, id, args) {
 	var dot_index = id.indexOf('.');
 	if (dot_index < 0) {
 		ids = [ null, id ];
@@ -28,7 +26,6 @@ Selenium.prototype.callFlexMethod = function(method, id, args) {
 			this.flashObjectLocator = this.getFlexObject();
 		}
 	}
-	alert("Calling 4");
 	// the object that contains the exposed Flex functions
 	var funcObj = null;
 	// get the flash object
@@ -60,8 +57,7 @@ Selenium.prototype.callFlexMethod = function(method, id, args) {
 				this.flashObjectLocator);
 
 	} else {
-		alert("Calling 5");
-		return funcObj[method]( ids[1], args);
+		return funcObj[method]( command, ids[1], args);
 	}
 };
 
@@ -73,6 +69,21 @@ Selenium.prototype.doFlexSetFlexObjID = function(flasObjID) {
 };
 
 Selenium.prototype.doFlexType = function(id, args) {
-	alert("Calling 1");
-	this.callFlexMethod('playBack', id, args);
+	this.callFlexMethod('playBack', 'flexType', id, args);
 };
+
+Selenium.prototype.doFlexClick = function(id, args) {
+	this.callFlexMethod('playBack', 'flexClick', id, args);
+};
+
+Selenium.prototype.doFlexFocusIn = function(id, args) {
+	this.callFlexMethod('playBack', 'flexFocusIn', id, args);
+};
+
+Selenium.prototype.doFlexWaitForElement = function(id, args) {
+	var value = this.callFlexMethod('playBack', 'flexWaitForElement', id, args);
+	if(value != 'true') {
+		throw new SeleniumError('Element Not found');
+	}
+};
+
