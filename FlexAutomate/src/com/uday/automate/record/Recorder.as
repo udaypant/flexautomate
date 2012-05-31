@@ -14,6 +14,7 @@ package com.uday.automate.record
 	import flash.utils.describeType;
 	import flash.utils.getQualifiedClassName;
 	
+	import mx.collections.ArrayCollection;
 	import mx.controls.Button;
 	import mx.controls.TextInput;
 	import mx.core.FlexGlobals;
@@ -27,6 +28,8 @@ package com.uday.automate.record
 	public class Recorder
 	{
 		private var sysManager:SystemManager;
+		private var recordQueue:ArrayCollection = new ArrayCollection();
+		public static const MAX_QUEUE_SIZE:int = 10;
 		
 		public function Recorder(sysMan:SystemManager)
 		{	
@@ -34,6 +37,7 @@ package com.uday.automate.record
 		}
 		
 		public function processSysManager():void {
+			sendToSelenium("waitForPageToLoad");
 			sendToSelenium("flexWaitForElement", IdentifierUtil.generateIdentifier(FlexGlobals.topLevelApplication));
 			AppTreeParser.parseUiTree(sysManager,registerComponent,null);
 			var popupManagerImpl:mx.managers.PopUpManagerImpl = mx.core.Singleton.getInstance("mx.managers::IPopUpManager") as mx.managers.PopUpManagerImpl;
@@ -49,7 +53,6 @@ package com.uday.automate.record
 			}
 		}
 		
-		
 		private function handleMouseClick(event:MouseEvent):void {
 			//Alert.show(IdentifierUtil.generateIdentifier(event.target));
 			sendToSelenium(event.type,IdentifierUtil.generateIdentifier(event.target), "");
@@ -60,9 +63,37 @@ package com.uday.automate.record
 			sendToSelenium(event.type,IdentifierUtil.generateIdentifier(event.target), event.text);
 		}
 		
-		public static function sendToSelenium(command:String, target:String, value:String = null):void {
-			var js:String = 'function(cmd, target, value) {window["_Selenium_IDE_Recorder"].record(cmd,target,value)}';
-			ExternalInterface.call(js, command, target, value);
+		public function sendToSelenium(command:String, target:String = null, value:String = null):void {
+			if(ExternalInterface.available) {
+				if(recorderAvailable()) {
+					flushQueue();
+					var js:String = "function(cmd, target, value) {window['_Selenium_IDE_Recorder'].record(cmd,target,value);}";
+					ExternalInterface.call(js, command, target, value);				
+				} else {
+					recordQueue.addItem({cmd:command,trgt:target,val:value});
+				}
+			}
+		}
+		
+		private function flushQueue():void {
+			var js:String = "function(cmd, target, value) {window['_Selenium_IDE_Recorder'].record(cmd,target,value);}";
+
+			for(var cmdIndex:int = 0; cmdIndex < recordQueue.length; cmdIndex++) {
+				var cmdObject:Object = recordQueue.getItemAt(cmdIndex);
+				ExternalInterface.call(js, cmdObject.cmd, cmdObject.trgt, cmdObject.val);
+			}
+			
+			recordQueue.removeAll();
+		}
+		
+		private function recorderAvailable():Boolean {
+			var js:String = "function() {" +
+				"if(window['_Selenium_IDE_Recorder']) {" +
+					"return true;" +
+				"} else {" +
+					"return false;" +
+				"}}";
+			return Boolean(ExternalInterface.call(js));
 		}
 		
 		public function registerComponent(component:Object,param:Object):Boolean {
@@ -135,7 +166,7 @@ package com.uday.automate.record
 		}
 		
 		private function focusInHandler(event:FocusEvent):void {
-			sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.target));
+			//sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.target));
 		}
 		
 		private function keyDownHandler(event:KeyboardEvent):void {
