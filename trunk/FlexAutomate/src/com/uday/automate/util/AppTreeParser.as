@@ -3,6 +3,8 @@ package com.uday.automate.util
 	import flash.utils.Dictionary;
 	
 	import mx.core.IChildList;
+	import mx.core.mx_internal;
+	use namespace mx_internal;
 
 	public class AppTreeParser
 	{
