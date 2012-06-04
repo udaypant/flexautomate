@@ -4,6 +4,7 @@ package com.uday.automate.record
 	import com.uday.automate.util.AppTreeParser;
 	import com.uday.automate.util.IdentifierUtil;
 	
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
@@ -16,6 +17,7 @@ package com.uday.automate.record
 	
 	import mx.collections.ArrayCollection;
 	import mx.controls.Button;
+	import mx.controls.CheckBox;
 	import mx.controls.TextInput;
 	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
@@ -23,6 +25,7 @@ package com.uday.automate.record
 	import mx.events.ChildExistenceChangedEvent;
 	import mx.events.DynamicEvent;
 	import mx.events.FlexEvent;
+	import mx.events.ListEvent;
 	import mx.managers.SystemManager;
 	
 	public class Recorder
@@ -137,7 +140,11 @@ package com.uday.automate.record
 		
 		private function registerControls(component:Object):void {
 			if(isTypeOrSubType(component, "TextInput")) {
-				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandler, false, 0, true);
+				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerTextInput, false, 0, true);
+			} else if((isTypeOrSubType(component, "Combo")) || (isTypeOrSubType(component, "List"))) {
+				component.addEventListener(ListEvent.CHANGE, valueCommitHandlerListControl, false, 0, true);
+			} else if(isTypeOrSubType(component, "Date")) {
+				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerDate, false, 0, true);
 			} else if (isTypeOrSubType(component, "Button")) {
 				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
 			}
@@ -155,18 +162,24 @@ package com.uday.automate.record
 			AppTreeParser.parseUiTree(event.relatedObject as IChildList, registerComponent,null);
 		}
 		
-		private function valueCommitHandler(event:FlexEvent):void {
-			if(event.target is TextInput) {
-				sendToSelenium("flexType",IdentifierUtil.generateIdentifier(event.target), event.target.text);
-			} 
+		private function valueCommitHandlerTextInput(event:Event):void {
+			sendToSelenium("flexType",IdentifierUtil.generateIdentifier(event.currentTarget), event.currentTarget.text);
+		}
+		
+		private function valueCommitHandlerListControl(event:Event):void {
+			sendToSelenium("flexSelect",IdentifierUtil.generateIdentifier(event.currentTarget), event.currentTarget.selectedIndex);
+		}
+		
+		private function valueCommitHandlerDate(event:Event):void {
+			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), event.currentTarget.selectedDate);
 		}
 		
 		private function clickHandler(event:MouseEvent):void {
-			sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.target));
+			sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.currentTarget));
 		}
 		
 		private function focusInHandler(event:FocusEvent):void {
-			//sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.target));
+			sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.currentTarget));
 		}
 		
 		private function keyDownHandler(event:KeyboardEvent):void {

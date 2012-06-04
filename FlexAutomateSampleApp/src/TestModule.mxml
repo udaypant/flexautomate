@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark" 
-		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute">
+		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="vertical">
 
 	<fx:Script>
 		<![CDATA[
@@ -17,4 +17,16 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:Button id="btnInModule" label="Button In module" click="btnInModule_clickHandler(event)"/>
+	<s:ComboBox>
+		<s:dataProvider>
+			<s:ArrayCollection>
+				<fx:Object label="Test 0"/>
+				<fx:Object label="Test 1"/>
+				<fx:Object label="Test 2"/>
+				<fx:Object label="Test 3"/>
+			</s:ArrayCollection>
+		</s:dataProvider>
+	</s:ComboBox>
+	<mx:DateField/>
+
 </mx:Module>
