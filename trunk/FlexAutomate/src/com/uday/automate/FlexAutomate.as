@@ -22,8 +22,8 @@ package com.uday.automate
 		public static function init(sysm:SystemManager):void {
 			FlexAutomate.sysManager = sysm as SystemManager;
 			instance = new FlexAutomate();			
-			recorder = new Recorder(sysm);
 			playback = new PlayBack(sysm);
+			recorder = new Recorder(sysm);
 		}
 		
 		private function appCreationComplete(event:FlexEvent):void {

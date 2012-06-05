@@ -5,13 +5,26 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.controls.DateField;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
+			import mx.events.DynamicEvent;
 			import mx.events.FlexEvent;
 			
-
+			[Bindable]
+			private var cmdList:ArrayCollection = new ArrayCollection([{},{}]);
+			
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
+				this.addEventListener("selenium",recorderUnit);
+				var a:Object = DateField.stringToDate("07-06-2012","DD-MM-YYYY");
+				trace(a);
+			}
+			
+			private function recorderUnit(event:DynamicEvent):void {
+				cmdList.addItemAt(event,cmdList.length - 2);
+				cmdList.refresh();
+				cmdGrid.scrollToIndex(cmdList.length - 1);
 			}
 
 
@@ -44,6 +57,14 @@
 			</mx:ArrayCollection>
 		</mx:dataProvider>
 	</mx:ComboBox>
+	
+	<mx:DataGrid id="cmdGrid" dataProvider="{cmdList}" width="100%">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Command" dataField="cmd"/>
+			<mx:DataGridColumn headerText="Target" dataField="trgt"/>
+			<mx:DataGridColumn headerText="Value" dataField="val"/>
+		</mx:columns>
+	</mx:DataGrid>
 
 	<mx:HBox id="dynamicComp"/>
 	<mx:ModuleLoader id="modLoader" width="100%" height="100%"/>

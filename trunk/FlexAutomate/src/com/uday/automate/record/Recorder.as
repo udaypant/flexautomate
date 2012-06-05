@@ -18,6 +18,7 @@ package com.uday.automate.record
 	import mx.collections.ArrayCollection;
 	import mx.controls.Button;
 	import mx.controls.CheckBox;
+	import mx.controls.DateField;
 	import mx.controls.TextInput;
 	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
@@ -27,6 +28,7 @@ package com.uday.automate.record
 	import mx.events.FlexEvent;
 	import mx.events.ListEvent;
 	import mx.managers.SystemManager;
+	import mx.modules.Module;
 	
 	public class Recorder
 	{
@@ -67,6 +69,11 @@ package com.uday.automate.record
 		}
 		
 		public function sendToSelenium(command:String, target:String = null, value:String = null):void {
+			var dynaEvent:DynamicEvent = new DynamicEvent("selenium",true,false);
+			dynaEvent.cmd = command;
+			dynaEvent.trgt = target;
+			dynaEvent.val = value;
+			FlexGlobals.topLevelApplication.dispatchEvent(dynaEvent);
 			if(ExternalInterface.available) {
 				if(recorderAvailable()) {
 					flushQueue();
@@ -141,10 +148,12 @@ package com.uday.automate.record
 		private function registerControls(component:Object):void {
 			if(isTypeOrSubType(component, "TextInput")) {
 				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerTextInput, false, 0, true);
-			} else if((isTypeOrSubType(component, "Combo")) || (isTypeOrSubType(component, "List"))) {
-				component.addEventListener(ListEvent.CHANGE, valueCommitHandlerListControl, false, 0, true);
 			} else if(isTypeOrSubType(component, "Date")) {
 				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerDate, false, 0, true);
+			} else if((isTypeOrSubType(component, "Combo")) || (isTypeOrSubType(component, "List"))) {
+				component.addEventListener(ListEvent.CHANGE, valueCommitHandlerListControl, false, 0, true);
+			} else if (isTypeOrSubType(component, "Button")) {
+				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
 			} else if (isTypeOrSubType(component, "Button")) {
 				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
 			}
@@ -159,6 +168,9 @@ package com.uday.automate.record
 		}
 		
 		private function childAddedToContainer(event:ChildExistenceChangedEvent):void {
+			if(event.relatedObject is Module) {
+				sendToSelenium("flexWaitForElement",IdentifierUtil.generateIdentifier(event.relatedObject));
+			}
 			AppTreeParser.parseUiTree(event.relatedObject as IChildList, registerComponent,null);
 		}
 		
@@ -171,7 +183,8 @@ package com.uday.automate.record
 		}
 		
 		private function valueCommitHandlerDate(event:Event):void {
-			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), event.currentTarget.selectedDate);
+			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), 
+							DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
 		}
 		
 		private function clickHandler(event:MouseEvent):void {
