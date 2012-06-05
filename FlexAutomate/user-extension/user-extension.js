@@ -80,8 +80,33 @@ Selenium.prototype.doFlexFocusIn = function(id, args) {
 	this.callFlexMethod('playBack', 'flexFocusIn', id, args);
 };
 
+Selenium.prototype.doFlexSelect = function(id, args) {
+	var value = this.callFlexMethod('playBack', 'flexSelect', id, args);
+	if(value != 'true') {
+		throw new SeleniumError('Element Not found');
+	}
+};
+
+Selenium.prototype.doFlexSelectDate = function(id, args) {
+	var value = this.callFlexMethod('playBack', 'flexSelectDate', id, args);
+	if(value != 'true') {
+		throw new SeleniumError('Element Not found');
+	}
+};
+
 Selenium.prototype.doFlexWaitForElement = function(id, args) {
-	var value = this.callFlexMethod('playBack', 'flexWaitForElement', id, args);
+	var delay = new Date().getTime() + args;
+	while (new Date() < delay){
+		try {
+			var value = this.callFlexMethod('playBack', 'flexWaitForElement', id, args);
+			if(value) {
+				break;
+			}
+		} catch(err) {
+			//Consume
+		}
+	}
+	
 	if(value != 'true') {
 		throw new SeleniumError('Element Not found');
 	}
