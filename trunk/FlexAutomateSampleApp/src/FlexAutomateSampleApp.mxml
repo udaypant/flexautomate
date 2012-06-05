@@ -4,9 +4,9 @@
 				creationComplete="application1_creationCompleteHandler(event)">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.DateField;
-			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.events.DynamicEvent;
 			import mx.events.FlexEvent;
@@ -24,7 +24,7 @@
 			private function recorderUnit(event:DynamicEvent):void {
 				cmdList.addItemAt(event,cmdList.length - 2);
 				cmdList.refresh();
-				cmdGrid.scrollToIndex(cmdList.length - 1);
+				//cmdGrid.scrollToIndex(cmdList.length - 1);
 			}
 
 
@@ -45,7 +45,7 @@
 
 		]]>
 	</mx:Script>
-	<mx:TextInput id="sampleTxtInput" width="100"/>
+<!--	<mx:TextInput id="sampleTxtInput" width="100"/>
 	<local:CustomButton id="someBtn" label="Test" click="someBtn_clickHandler(event)"/>
 	<mx:ComboBox id="testCmb">
 		<mx:dataProvider>
@@ -57,12 +57,26 @@
 			</mx:ArrayCollection>
 		</mx:dataProvider>
 	</mx:ComboBox>
+-->	
+	<mx:MenuBar id="myMenuBar" labelField="@label">
+		<mx:dataProvider>
+			<mx:XMLList>
+				<menuitem label="MenuItem A">
+					<menuitem label="MenuItem A1"/>
+					<menuitem label="MenuItem A2"/>
+					<menuitem label="MenuItem A3"/>
+				</menuitem>
+				<menuitem label="MenuItem B"/>
+				<menuitem label="MenuItem C"/>
+			</mx:XMLList>
+		</mx:dataProvider>
+	</mx:MenuBar>
 	
 	<mx:DataGrid id="cmdGrid" dataProvider="{cmdList}" width="100%">
 		<mx:columns>
-			<mx:DataGridColumn headerText="Command" dataField="cmd"/>
-			<mx:DataGridColumn headerText="Target" dataField="trgt"/>
-			<mx:DataGridColumn headerText="Value" dataField="val"/>
+			<mx:DataGridColumn headerText="Command" dataField="cmd" width="200"/>
+			<mx:DataGridColumn headerText="Target" dataField="trgt" width="700"/>
+			<mx:DataGridColumn headerText="Value" dataField="val" width="200"/>
 		</mx:columns>
 	</mx:DataGrid>
 
