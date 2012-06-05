@@ -95,17 +95,7 @@ Selenium.prototype.doFlexSelectDate = function(id, args) {
 };
 
 Selenium.prototype.doFlexWaitForElement = function(id, args) {
-	var delay = new Date().getTime() + args;
-	while (new Date() < delay){
-		try {
-			var value = this.callFlexMethod('playBack', 'flexWaitForElement', id, args);
-			if(value) {
-				break;
-			}
-		} catch(err) {
-			//Consume
-		}
-	}
+	var value = this.callFlexMethod('playBack', 'flexWaitForElement', id, args);
 	
 	if(value != 'true') {
 		throw new SeleniumError('Element Not found');

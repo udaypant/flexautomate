@@ -36,13 +36,17 @@ package com.uday.automate.record
 		private var recordQueue:ArrayCollection = new ArrayCollection();
 		public static const MAX_QUEUE_SIZE:int = 10;
 		
+		private var appStartTime:Number;
+		
 		public function Recorder(sysMan:SystemManager)
 		{	
+			appStartTime = new Date().time;
 			sysManager = sysMan;
 		}
 		
 		public function processSysManager():void {
-			sendToSelenium("waitForPageToLoad");
+			var pauseDelay:int = (new Date().time - appStartTime) + 3000;
+			sendToSelenium("pause",pauseDelay.toString());
 			sendToSelenium("flexWaitForElement", IdentifierUtil.generateIdentifier(FlexGlobals.topLevelApplication));
 			AppTreeParser.parseUiTree(sysManager,registerComponent,null);
 			var popupManagerImpl:mx.managers.PopUpManagerImpl = mx.core.Singleton.getInstance("mx.managers::IPopUpManager") as mx.managers.PopUpManagerImpl;
@@ -125,7 +129,8 @@ package com.uday.automate.record
 			return 	isTypeOrSubType(component,"mx.core::Container","mx.containers") || 
 					isTypeOrSubType(component, "spark.components.supportClasses::GroupBase") ||
 					isTypeOrSubType(component, "spark.components::SkinnableContainer") ||
-					isTypeOrSubType(component,"mx.managers::SystemManager");
+					isTypeOrSubType(component,"mx.managers::SystemManager") ||
+					isTypeOrSubType(component,"mx.controls::MenuBar");
 		}
 		
 		private function isTypeOrSubType(component:Object, className:String, packageNm:String = null):Boolean {
@@ -153,9 +158,12 @@ package com.uday.automate.record
 			} else if((isTypeOrSubType(component, "Combo")) || (isTypeOrSubType(component, "List"))) {
 				component.addEventListener(ListEvent.CHANGE, valueCommitHandlerListControl, false, 0, true);
 			} else if (isTypeOrSubType(component, "Button")) {
-				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
-			} else if (isTypeOrSubType(component, "Button")) {
-				component.addEventListener(MouseEvent.CLICK, clickHandler, false, 0, true);
+				component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
+			} else if (isTypeOrSubType(component, "MenuBarItem")) {
+				component.addEventListener(MouseEvent.MOUSE_DOWN, mouseHandler, false, 0, true);
+				component.addEventListener(MouseEvent.MOUSE_UP, mouseHandler, false, 0, true);
+				component.addEventListener(MouseEvent.MOUSE_OVER, mouseHandler, false, 0, true);
+				component.addEventListener(MouseEvent.MOUSE_OUT, mouseHandler, false, 0, true);
 			}
 			
 			//Some handlers to be attached to all controls
@@ -187,8 +195,28 @@ package com.uday.automate.record
 							DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
 		}
 		
-		private function clickHandler(event:MouseEvent):void {
-			sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.currentTarget));
+		private function mouseHandler(event:MouseEvent):void {
+			switch(event.type) {
+				case MouseEvent.CLICK:
+					sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.currentTarget));
+					break;
+				
+				case MouseEvent.MOUSE_DOWN:
+					sendToSelenium("flexMouseDown",IdentifierUtil.generateIdentifier(event.currentTarget));
+					break;
+				
+				case MouseEvent.MOUSE_UP:
+					sendToSelenium("flexMouseUp",IdentifierUtil.generateIdentifier(event.currentTarget));
+					break;
+				
+				case MouseEvent.MOUSE_OVER:
+					sendToSelenium("flexMouseOver",IdentifierUtil.generateIdentifier(event.currentTarget));
+					break;
+				
+				case MouseEvent.MOUSE_OUT:
+					sendToSelenium("flexMouseOut",IdentifierUtil.generateIdentifier(event.currentTarget));
+					break;
+			}
 		}
 		
 		private function focusInHandler(event:FocusEvent):void {

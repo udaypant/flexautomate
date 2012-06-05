@@ -1,4 +1,4 @@
-package com.uday.automate.pyayback
+package com.uday.automate.playback
 {
 	import com.uday.automate.util.AppTreeParser;
 	
@@ -64,7 +64,7 @@ package com.uday.automate.pyayback
 					case "flexSelect":
 						var index:int = int(value);
 						if(node && node.hasOwnProperty("selectedIndex") && index && !isNaN(index)) {
-							node.selectedIndex = new Date(value);
+							node.selectedIndex = index;
 							returnVal = "true";
 						}
 						break;
