@@ -27,6 +27,7 @@ package com.uday.automate.record
 	import mx.events.DynamicEvent;
 	import mx.events.FlexEvent;
 	import mx.events.ListEvent;
+	import mx.events.MenuEvent;
 	import mx.managers.SystemManager;
 	import mx.modules.Module;
 	
@@ -129,8 +130,7 @@ package com.uday.automate.record
 			return 	isTypeOrSubType(component,"mx.core::Container","mx.containers") || 
 					isTypeOrSubType(component, "spark.components.supportClasses::GroupBase") ||
 					isTypeOrSubType(component, "spark.components::SkinnableContainer") ||
-					isTypeOrSubType(component,"mx.managers::SystemManager") ||
-					isTypeOrSubType(component,"mx.controls::MenuBar");
+					isTypeOrSubType(component,"mx.managers::SystemManager");
 		}
 		
 		private function isTypeOrSubType(component:Object, className:String, packageNm:String = null):Boolean {
@@ -151,15 +151,22 @@ package com.uday.automate.record
 		}
 		
 		private function registerControls(component:Object):void {
+			var attachDefault:Boolean = false;
 			if(isTypeOrSubType(component, "TextInput")) {
+				attachDefault = true;
 				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerTextInput, false, 0, true);
 			} else if(isTypeOrSubType(component, "Date")) {
+				attachDefault = true;
 				component.addEventListener(FlexEvent.VALUE_COMMIT, valueCommitHandlerDate, false, 0, true);
 			} else if((isTypeOrSubType(component, "Combo")) || (isTypeOrSubType(component, "List"))) {
+				attachDefault = true;
 				component.addEventListener(ListEvent.CHANGE, valueCommitHandlerListControl, false, 0, true);
 			} else if (isTypeOrSubType(component, "Button")) {
+				attachDefault = true;
 				component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
-			} else if (isTypeOrSubType(component, "MenuBarItem")) {
+			} else if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
+				component.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler, false, 0, true);
+			} else if (isTypeOrSubType(component, "mx.controls.menuClasses::MenuBarItem") || isTypeOrSubType(component, "mx.controls.menuClasses::MenuItemRenderer")) {
 				component.addEventListener(MouseEvent.MOUSE_DOWN, mouseHandler, false, 0, true);
 				component.addEventListener(MouseEvent.MOUSE_UP, mouseHandler, false, 0, true);
 				component.addEventListener(MouseEvent.MOUSE_OVER, mouseHandler, false, 0, true);
@@ -167,8 +174,10 @@ package com.uday.automate.record
 			}
 			
 			//Some handlers to be attached to all controls
-			component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler, false, 0, true);
-			component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, 0, true);
+			if(attachDefault) {
+				component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler, false, 0, true);
+				component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, 0, true);
+			}
 		}
 		
 		private function registerContainer(component:Object):void {
@@ -193,6 +202,10 @@ package com.uday.automate.record
 		private function valueCommitHandlerDate(event:Event):void {
 			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), 
 							DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
+		}
+		
+		private function menuShowHandler(event:MenuEvent):void {
+			AppTreeParser.parseUiTree(event.menu as IChildList, registerComponent,null);
 		}
 		
 		private function mouseHandler(event:MouseEvent):void {
