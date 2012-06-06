@@ -130,7 +130,9 @@ package com.uday.automate.record
 			return 	isTypeOrSubType(component,"mx.core::Container","mx.containers") || 
 					isTypeOrSubType(component, "spark.components.supportClasses::GroupBase") ||
 					isTypeOrSubType(component, "spark.components::SkinnableContainer") ||
-					isTypeOrSubType(component,"mx.managers::SystemManager");
+					isTypeOrSubType(component,"mx.managers::SystemManager") ||
+					isTypeOrSubType(component, "mx.controls::MenuBar") ||
+					isTypeOrSubType(component,"mx.controls.listClasses::ListBaseContentHolder");
 		}
 		
 		private function isTypeOrSubType(component:Object, className:String, packageNm:String = null):Boolean {
@@ -164,9 +166,8 @@ package com.uday.automate.record
 			} else if (isTypeOrSubType(component, "Button")) {
 				attachDefault = true;
 				component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
-			} else if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
-				component.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler, false, 0, true);
-			} else if (isTypeOrSubType(component, "mx.controls.menuClasses::MenuBarItem") || isTypeOrSubType(component, "mx.controls.menuClasses::MenuItemRenderer")) {
+			} else if (isTypeOrSubType(component, "mx.controls.menuClasses::MenuBarItem") || 
+						isTypeOrSubType(component, "mx.controls.menuClasses::MenuItemRenderer")) {
 				component.addEventListener(MouseEvent.MOUSE_DOWN, mouseHandler, false, 0, true);
 				component.addEventListener(MouseEvent.MOUSE_UP, mouseHandler, false, 0, true);
 				component.addEventListener(MouseEvent.MOUSE_OVER, mouseHandler, false, 0, true);
@@ -182,6 +183,10 @@ package com.uday.automate.record
 		
 		private function registerContainer(component:Object):void {
 			component.addEventListener(ChildExistenceChangedEvent.CHILD_ADD, childAddedToContainer, false, 0, true);
+			
+			if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
+				component.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler, false, 0, true);
+			}
 		}
 		
 		private function childAddedToContainer(event:ChildExistenceChangedEvent):void {
