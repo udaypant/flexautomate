@@ -24,7 +24,7 @@
 			private function recorderUnit(event:DynamicEvent):void {
 				cmdList.addItemAt(event,cmdList.length - 2);
 				cmdList.refresh();
-				//cmdGrid.scrollToIndex(cmdList.length - 1);
+				cmdGrid.scrollToIndex(cmdList.length - 1);
 			}
 
 
