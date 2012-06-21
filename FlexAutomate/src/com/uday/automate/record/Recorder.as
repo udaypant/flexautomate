@@ -6,6 +6,7 @@ package com.uday.automate.record
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.EventPhase;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -140,8 +141,6 @@ package com.uday.automate.record
 					isTypeOrSubType(component, "spark.components.supportClasses::GroupBase") ||
 					isTypeOrSubType(component, "spark.components::SkinnableContainer") ||
 					isTypeOrSubType(component,"mx.managers::SystemManager") ||
-					isTypeOrSubType(component, "mx.controls::MenuBar") ||
-					isTypeOrSubType(component, "mx.controls::Menu") ||
 					isTypeOrSubType(component,"mx.controls.listClasses::ListBaseContentHolder");
 		}
 		
@@ -176,6 +175,8 @@ package com.uday.automate.record
 			} else if (isTypeOrSubType(component, "Button")) {
 				attachDefault = true;
 				component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
+			} else if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
+				(component as MenuBar).addEventListener(MenuEvent.CHANGE, menuChangeEventListener, false, 0, true);
 			}
 			
 			//Some handlers to be attached to all controls
@@ -189,10 +190,7 @@ package com.uday.automate.record
 		
 		private function registerContainer(component:Object):void {
 			component.addEventListener(ChildExistenceChangedEvent.CHILD_ADD, childAddedToContainer, false, 0, true);
-			
-			if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
-				(component as MenuBar).addEventListener(MenuEvent.CHANGE, menuChangeEventListener, false, 0, true);
-			}
+			component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
 			
 			trace("Registering container " + component.toString() + " with id " + (component.hasOwnProperty("id")?component.id:"NA") + " and class " + getQualifiedClassName(component));
 		}
@@ -232,6 +230,10 @@ package com.uday.automate.record
 		}
 		
 		private function mouseHandler(event:MouseEvent):void {
+			if(event.eventPhase != EventPhase.AT_TARGET) {
+				return;
+			}
+			
 			switch(event.type) {
 				case MouseEvent.CLICK:
 					sendToSelenium("flexClick",IdentifierUtil.generateIdentifier(event.currentTarget));
