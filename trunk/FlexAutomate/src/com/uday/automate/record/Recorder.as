@@ -19,6 +19,7 @@ package com.uday.automate.record
 	import mx.controls.Button;
 	import mx.controls.CheckBox;
 	import mx.controls.DateField;
+	import mx.controls.MenuBar;
 	import mx.controls.TextInput;
 	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
@@ -51,9 +52,14 @@ package com.uday.automate.record
 			sendToSelenium("flexWaitForElement", IdentifierUtil.generateIdentifier(FlexGlobals.topLevelApplication));
 			AppTreeParser.parseUiTree(sysManager,registerComponent,null);
 			var popupManagerImpl:mx.managers.PopUpManagerImpl = mx.core.Singleton.getInstance("mx.managers::IPopUpManager") as mx.managers.PopUpManagerImpl;
+			var activeWindowManager:Object = sysManager.getImplementation("mx.managers::IActiveWindowManager");
 			
 			if(popupManagerImpl is EventDispatcher) {
 				popupManagerImpl.addEventListener("addedPopUp",popupListener, false, 0, true);
+			}
+			
+			if(activeWindowManager) {
+				activeWindowManager.addEventListener("activatedForm",activeWindowListener, false, 0, true);
 			}
 		}
 		
@@ -61,6 +67,10 @@ package com.uday.automate.record
 			if(event.hasOwnProperty("window") && event.window) {
 				AppTreeParser.parseUiTree(event.window,registerComponent,null);
 			}
+		}
+		
+		private function activeWindowListener(event:Event):void {
+			trace("activeWindowListener called");
 		}
 		
 		private function handleMouseClick(event:MouseEvent):void {
@@ -120,8 +130,7 @@ package com.uday.automate.record
 			} else {
 				registerControls(component);
 			}
-			//var isContainer:Boolean = (type.extendsClass.(@type.toString().search("mx.controls") > -1) as XMLList).length;
-			trace("Registering " + component.toString() + " with id " + (component.hasOwnProperty("id")?component.id:"NA") + " and class " + getQualifiedClassName(component));
+			//var isContainer:Boolean = (type.extendsClass.(@type.toString().search("mx.controls") > -1) as XMLList).length;			
 			
 			return false;
 		}
@@ -132,6 +141,7 @@ package com.uday.automate.record
 					isTypeOrSubType(component, "spark.components::SkinnableContainer") ||
 					isTypeOrSubType(component,"mx.managers::SystemManager") ||
 					isTypeOrSubType(component, "mx.controls::MenuBar") ||
+					isTypeOrSubType(component, "mx.controls::Menu") ||
 					isTypeOrSubType(component,"mx.controls.listClasses::ListBaseContentHolder");
 		}
 		
@@ -166,12 +176,6 @@ package com.uday.automate.record
 			} else if (isTypeOrSubType(component, "Button")) {
 				attachDefault = true;
 				component.addEventListener(MouseEvent.CLICK, mouseHandler, false, 0, true);
-			} else if (isTypeOrSubType(component, "mx.controls.menuClasses::MenuBarItem") || 
-						isTypeOrSubType(component, "mx.controls.menuClasses::MenuItemRenderer")) {
-				component.addEventListener(MouseEvent.MOUSE_DOWN, mouseHandler, false, 0, true);
-				component.addEventListener(MouseEvent.MOUSE_UP, mouseHandler, false, 0, true);
-				component.addEventListener(MouseEvent.MOUSE_OVER, mouseHandler, false, 0, true);
-				component.addEventListener(MouseEvent.MOUSE_OUT, mouseHandler, false, 0, true);
 			}
 			
 			//Some handlers to be attached to all controls
@@ -179,13 +183,31 @@ package com.uday.automate.record
 				component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler, false, 0, true);
 				component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, 0, true);
 			}
+			
+			trace("Registering control " + component.toString() + " with id " + (component.hasOwnProperty("id")?component.id:"NA") + " and class " + getQualifiedClassName(component));
 		}
 		
 		private function registerContainer(component:Object):void {
 			component.addEventListener(ChildExistenceChangedEvent.CHILD_ADD, childAddedToContainer, false, 0, true);
 			
 			if (isTypeOrSubType(component, "mx.controls::MenuBar")) {
-				component.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler, false, 0, true);
+				(component as MenuBar).addEventListener(MenuEvent.CHANGE, menuChangeEventListener, false, 0, true);
+			}
+			
+			trace("Registering container " + component.toString() + " with id " + (component.hasOwnProperty("id")?component.id:"NA") + " and class " + getQualifiedClassName(component));
+		}
+		
+		private function menuChangeEventListener(event:MenuEvent):void {
+			if((event.item is XML) && (event.item.children().length() == 0)) {
+				var data:XML = event.item as XML;
+				var label:String = event.menuBar.labelField;
+				var identifier:String = "";
+				
+				while(data) {
+					identifier = "/" + data[label] + ":" + label + identifier;
+					data = data.parent();
+				}
+				sendToSelenium("flexMenuSelected",IdentifierUtil.generateIdentifier(event.menuBar), identifier);
 			}
 		}
 		
@@ -207,10 +229,6 @@ package com.uday.automate.record
 		private function valueCommitHandlerDate(event:Event):void {
 			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), 
 							DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
-		}
-		
-		private function menuShowHandler(event:MenuEvent):void {
-			AppTreeParser.parseUiTree(event.menu as IChildList, registerComponent,null);
 		}
 		
 		private function mouseHandler(event:MouseEvent):void {
