@@ -102,3 +102,11 @@ Selenium.prototype.doFlexWaitForElement = function(id, args) {
 	}
 };
 
+Selenium.prototype.doFlexMenuSelected = function(id, args) {
+	var value = this.callFlexMethod('playBack', 'flexMenuSelected', id, args);
+	
+	if(value != 'true') {
+		throw new SeleniumError('Element Not found');
+	}
+};
+
