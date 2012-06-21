@@ -4,12 +4,15 @@
 				creationComplete="application1_creationCompleteHandler(event)">
 	<mx:Script>
 		<![CDATA[
+			import com.uday.automate.FlexAutomate;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.DateField;
 			import mx.events.CloseEvent;
 			import mx.events.DynamicEvent;
 			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
 			
 			[Bindable]
 			private var cmdList:ArrayCollection = new ArrayCollection([{},{}]);
@@ -17,8 +20,7 @@
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
 				this.addEventListener("selenium",recorderUnit);
-				var a:Object = DateField.stringToDate("07-06-2012","DD-MM-YYYY");
-				trace(a);
+				systemManager.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			}
 			
 			private function recorderUnit(event:DynamicEvent):void {
@@ -43,6 +45,25 @@
 				
 			}
 
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var data:Object = cmdGrid.selectedItem;
+				FlexAutomate.playback.playback(data.cmd, data.trgt, data.val);				
+			}
+			
+			private function mouseMoveHandler(event:MouseEvent):void {
+				cood.text = ("X: " + event.stageX.toString() + "  Y: " + event.stageY.toString());
+			}
+
+
+			protected function myMenuBar_changeHandler(event:MenuEvent):void
+			{
+				if(event.label == "MenuItem A11") {
+					modLoader.url = "TestModule.swf";
+				}
+			}
+
 		]]>
 	</mx:Script>
 <!--	<mx:TextInput id="sampleTxtInput" width="100"/>
@@ -58,11 +79,15 @@
 		</mx:dataProvider>
 	</mx:ComboBox>
 -->	
-	<mx:MenuBar id="myMenuBar" labelField="@label">
+	<mx:MenuBar id="myMenuBar" labelField="@label" change="myMenuBar_changeHandler(event)">
 		<mx:dataProvider>
 			<mx:XMLList>
 				<menuitem label="MenuItem A">
-					<menuitem label="MenuItem A1"/>
+					<menuitem label="MenuItem A1">
+						<menuitem label="MenuItem A11"/>
+						<menuitem label="MenuItem A12"/>
+						<menuitem label="MenuItem A13"/>
+					</menuitem>
 					<menuitem label="MenuItem A2"/>
 					<menuitem label="MenuItem A3"/>
 				</menuitem>
@@ -70,8 +95,7 @@
 				<menuitem label="MenuItem C"/>
 			</mx:XMLList>
 		</mx:dataProvider>
-	</mx:MenuBar>
-	
+	</mx:MenuBar>	
 	<mx:DataGrid id="cmdGrid" dataProvider="{cmdList}" width="100%">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Command" dataField="cmd" width="200"/>
@@ -79,6 +103,8 @@
 			<mx:DataGridColumn headerText="Value" dataField="val" width="200"/>
 		</mx:columns>
 	</mx:DataGrid>
+	<mx:Text id="cood"/>
+	<mx:Button label="Execute Command" click="button1_clickHandler(event)"/>
 
 	<mx:HBox id="dynamicComp"/>
 	<mx:ModuleLoader id="modLoader" width="100%" height="100%"/>

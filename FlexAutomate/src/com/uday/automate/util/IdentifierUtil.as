@@ -26,7 +26,12 @@ package com.uday.automate.util
 				} else {
 					identifier = ( "/" + component.className + ":" + "className" + identifier);
 				}
-				component = component.parent;
+				
+				if(component.hasOwnProperty("parent") && component.parent) {
+					component = component.parent;
+				} else {
+					break;
+				}
 			}
 			
 			return identifier;

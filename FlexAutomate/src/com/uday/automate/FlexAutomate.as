@@ -12,8 +12,8 @@ package com.uday.automate
 	{
 		private static var sysManager:SystemManager = null;
 		private static var instance:FlexAutomate;
-		private static var recorder:Recorder;
-		private static var playback:PlayBack;
+		public static var recorder:Recorder;
+		public static var playback:PlayBack;
 		
 		public function FlexAutomate() {
 			FlexAutomate.sysManager.addEventListener(FlexEvent.APPLICATION_COMPLETE, appCreationComplete);
@@ -29,6 +29,10 @@ package com.uday.automate
 		private function appCreationComplete(event:FlexEvent):void {
 			var app:Object = FlexAutomate.sysManager.getChildAt(0);
 			recorder.processSysManager();
+		}
+		
+		public static function getInstance():FlexAutomate {
+			return instance;
 		}
 	}
 }
