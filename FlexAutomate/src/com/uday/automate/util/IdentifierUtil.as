@@ -1,8 +1,8 @@
 package com.uday.automate.util
 {
 	import mx.core.UIComponent;
-	import mx.managers.SystemManager;
 	import mx.core.mx_internal;
+	import mx.managers.SystemManager;
 	use namespace mx_internal;
 	
 	public class IdentifierUtil

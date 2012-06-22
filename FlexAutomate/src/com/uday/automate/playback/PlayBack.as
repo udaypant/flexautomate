@@ -18,6 +18,7 @@ package com.uday.automate.playback
 	import mx.controls.menuClasses.MenuItemRenderer;
 	import mx.core.UIComponent;
 	import mx.core.mx_internal;
+	import mx.events.ListEvent;
 	import mx.managers.SystemManager;
 
 	public class PlayBack
@@ -37,6 +38,10 @@ package com.uday.automate.playback
 			var node:Object = AppTreeParser.getNode(sysManager,target);
 			var returnVal:String = "";
 			if(node) {
+				if(node is UIComponent) {
+					(node as UIComponent).setFocus();
+				}
+				
 				switch(command) {
 					case "flexType":
 						if(node && node.hasOwnProperty("text")) {
@@ -60,12 +65,15 @@ package com.uday.automate.playback
 					
 					case "flexSelectDate":
 						var dateArr:Array = value.split("|");
+						var dateVal:Date = null;
 						
 						if(dateArr.length == 1) {
 							dateArr.push("DD-MM-YYYY");
 						}
 						
-						var dateVal:Date = DateField.stringToDate(dateArr[0],dateArr[1]);
+						if(dateArr[0] || dateArr[0]!="") {
+							dateVal = DateField.stringToDate(dateArr[0],dateArr[1]);
+						}
 
 						if(node && node.hasOwnProperty("selectedDate") && dateVal) {
 							node.selectedDate = dateVal;
@@ -75,10 +83,11 @@ package com.uday.automate.playback
 					
 					case "flexSelect":
 						var index:int = int(value);
-						if(node && node.hasOwnProperty("selectedIndex") && index && !isNaN(index)) {
+						if(node && node.hasOwnProperty("selectedIndex") && !isNaN(index) && (index >= 0)) {
 							node.selectedIndex = index;
 							returnVal = "true";
 						}
+						(node as UIComponent).dispatchEvent(new ListEvent(ListEvent.CHANGE,false,false,-1,index)); 
 						break;
 					
 					case "flexWaitForElement":
