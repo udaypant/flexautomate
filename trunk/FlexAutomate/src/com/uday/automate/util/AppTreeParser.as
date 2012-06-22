@@ -18,6 +18,7 @@ package com.uday.automate.util
 			
 			while(stack.length > 0) {
 				currNode = stack.pop();
+				
 				if(nodeProcessor(currNode,param)) {
 					break;
 				}

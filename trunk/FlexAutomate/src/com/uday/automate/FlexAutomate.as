@@ -27,7 +27,6 @@ package com.uday.automate
 		}
 		
 		private function appCreationComplete(event:FlexEvent):void {
-			var app:Object = FlexAutomate.sysManager.getChildAt(0);
 			recorder.processSysManager();
 		}
 		

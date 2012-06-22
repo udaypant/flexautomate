@@ -10,11 +10,11 @@ Selenium.prototype.getFlexObject = function() {
 Selenium.prototype.flashObjectLocator = null;
 
 Selenium.prototype.callFlexMethod = function(method, command, id, args) {
-	var dot_index = id.indexOf('.');
+	var dot_index = id.indexOf('::');
 	if (dot_index < 0) {
 		ids = [ null, id ];
 	} else {
-		ids = [ id.slice(0, dot_index), id.slice(dot_index + 1) ];
+		ids = [ id.slice(0, dot_index), id.slice(dot_index + 2) ];
 	}
 
 		// Flex application id is specified, so playback within that application

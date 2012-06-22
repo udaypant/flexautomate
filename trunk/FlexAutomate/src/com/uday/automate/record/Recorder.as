@@ -7,7 +7,6 @@ package com.uday.automate.record
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.EventPhase;
-	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
@@ -40,6 +39,8 @@ package com.uday.automate.record
 		public static const MAX_QUEUE_SIZE:int = 10;
 		
 		private var appStartTime:Number;
+		
+		private var lastCommand:Object;
 		
 		public function Recorder(sysMan:SystemManager)
 		{	
@@ -85,18 +86,22 @@ package com.uday.automate.record
 		}
 		
 		public function sendToSelenium(command:String, target:String = null, value:String = null):void {
-			var dynaEvent:DynamicEvent = new DynamicEvent("selenium",true,false);
-			dynaEvent.cmd = command;
-			dynaEvent.trgt = target;
-			dynaEvent.val = value;
-			FlexGlobals.topLevelApplication.dispatchEvent(dynaEvent);
+			/*The current command is the same as the precious one. 
+				In all probablity it is a stray event causing a duplicate recording. Skiping this command*/
+			if(lastCommand && (lastCommand.cmd == command) &&
+				(lastCommand.trgt == target) && (lastCommand.val == value)) {
+				return;
+			} else {
+				lastCommand = {cmd:command,trgt:target,val:value};
+			}
+			
 			if(ExternalInterface.available) {
 				if(recorderAvailable()) {
 					flushQueue();
 					var js:String = "function(cmd, target, value) {window['_Selenium_IDE_Recorder'].record(cmd,target,value);}";
 					ExternalInterface.call(js, command, target, value);				
 				} else {
-					recordQueue.addItem({cmd:command,trgt:target,val:value});
+					recordQueue.addItem(lastCommand);
 				}
 			}
 		}
@@ -181,7 +186,6 @@ package com.uday.automate.record
 			
 			//Some handlers to be attached to all controls
 			if(attachDefault) {
-				component.addEventListener(FocusEvent.FOCUS_IN, focusInHandler, false, 0, true);
 				component.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, 0, true);
 			}
 			
@@ -225,8 +229,12 @@ package com.uday.automate.record
 		}
 		
 		private function valueCommitHandlerDate(event:Event):void {
-			sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), 
-							DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
+			if(event.currentTarget.value == "" && !event.currentTarget.selectedDate) {
+				sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), "");
+			} else if(event.currentTarget.selectedDate){
+				sendToSelenium("flexSelectDate",IdentifierUtil.generateIdentifier(event.currentTarget), 
+					DateField.dateToString(event.currentTarget.selectedDate,"DD-MM-YYYY") + "|DD-MM-YYYY");
+			}
 		}
 		
 		private function mouseHandler(event:MouseEvent):void {
@@ -255,10 +263,6 @@ package com.uday.automate.record
 					sendToSelenium("flexMouseOut",IdentifierUtil.generateIdentifier(event.currentTarget));
 					break;
 			}
-		}
-		
-		private function focusInHandler(event:FocusEvent):void {
-			sendToSelenium("flexFocusIn",IdentifierUtil.generateIdentifier(event.currentTarget));
 		}
 		
 		private function keyDownHandler(event:KeyboardEvent):void {
