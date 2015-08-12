@@ -1,0 +1,1 @@
+FlexAutomate is an automation framework on flex based on selenium platform.
